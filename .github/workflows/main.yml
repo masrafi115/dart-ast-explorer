@@ -1,0 +1,45 @@
+name: Build and Package Dart AST Analyzer WASM
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  # Allows you to manually trigger the build anytime from the GitHub Actions tab
+  workflow_dispatch:
+
+jobs:
+  build-wasm:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Clone the repository source files into the runner workspace
+      - name: Checkout Codebase
+        uses: actions/checkout@v4
+
+      # Step 2: Provision the official stable Google Dart SDK
+      - name: Setup Dart SDK
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+
+      # Step 3: Fetch and resolve pub.dev project dependencies
+      - name: Install Project Dependencies
+        run: dart pub get
+
+      # Step 4: Execute the .PHONY build target to generate the WASM binary
+      - name: Compile Abstract Syntax Tree Engine to WASM
+        run: make build
+
+      # Step 5: Execute the secondary code generator walker target
+      - name: Run Code Generation Walker
+        run: make walker
+
+      # Step 6: Package and upload the artifacts to make them downloadable
+      - name: Upload Compiled WASM Module Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dart-ast-analyzer-wasm
+          path: ./web/src/lib/analyzer/ast-analyzer.wasm
+          if-no-files-found: error
+          retention-days: 7
