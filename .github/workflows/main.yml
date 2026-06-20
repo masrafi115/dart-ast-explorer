@@ -5,7 +5,6 @@ on:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
-  # Allows you to manually trigger the build anytime from the GitHub Actions tab
   workflow_dispatch:
 
 jobs:
@@ -17,11 +16,12 @@ jobs:
       - name: Checkout Codebase
         uses: actions/checkout@v4
 
-      # Step 2: Provision the official stable Google Dart SDK
+      # Step 2: Provision a compatible Google Dart SDK version
+      # Explicitly pinning to 3.5.4 solves the missing '_macros 0.3.2' conflict
       - name: Setup Dart SDK
         uses: dart-lang/setup-dart@v1
         with:
-          sdk: stable
+          sdk: '3.5.4'
 
       # Step 3: Fetch and resolve pub.dev project dependencies
       - name: Install Project Dependencies
